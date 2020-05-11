@@ -1,8 +1,5 @@
-This is a pure-Racket parser of CSS, according to [CSS Syntax Module
-Level 3][spec] specification last updated on 16 July 2019.
-
-To deliver sooner, I will assume UTF-8 input only. This is not
-reality, but it's good enough for now.
+This is a pure-Racket CSS parser that follows _[CSS Syntax Module
+Level 3][spec]_ (16 July 2019).
 
 The code is organized such that one module covers either one top-level
 section of the spec, or several subsections.  If a module covers
