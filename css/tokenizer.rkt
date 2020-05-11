@@ -5,6 +5,7 @@
 
 (require "preprocess.rkt"
          "exn.rkt"
+         "tokenizer/code-points.rkt"
          "tokenizer/terms.rkt"
          "tokenizer/tokens.rkt"
          "tokenizer/identifiers.rkt"
@@ -26,22 +27,23 @@
 ; §4.3.1
 (define (get-next-token in)
   (define next (peek-char/css in))
+  (define (? ch) (char=? next ch))
   (cond [(eof-object? next) (eof-token)]
         [(starts-comment? in) (consume-comment in)]
         [(whitespace? next) (make-whitespace-token in)]
-        [(char=? next #\u0022) (consume-string-token in (read-char in) null)]
-        [(char=? next #\u0027) (consume-string-token in (read-char in) null)]
-        [(char=? next #\u0023) (consume-hash-or-delim-token in)]
-        [(char=? next #\u002B) (make-numeric-or-delim-token in)]
-        [(char=? next #\u0028) (l-paren-token)]
-        [(char=? next #\u0029) (r-paren-token)]
-        [(char=? next #\u002C) (comma-token)]
-        [(char=? next #\u003A) (colon-token)]
-        [(char=? next #\u003B) (semicolon-token)]
-        [(char=? next #\u005B) (l-square-bracket-token)]
-        [(char=? next #\u005D) (r-square-bracket-token)]
-        [(char=? next #\u007B) (l-curly-bracket-token)]
-        [(char=? next #\u007D) (r-curly-bracket-token)]
+        [(? QUOTATION-MARK) (consume-string-token in (read-char in) null)]
+        [(? APOSTROPHE) (consume-string-token in (read-char in) null)]
+        [(? NUMBER-SIGN) (consume-hash-or-delim-token in)]
+        [(? PLUS-SIGN) (make-numeric-or-delim-token in)]
+        [(? LEFT-PARENTHESIS) (l-paren-token)]
+        [(? RIGHT-PARENTHESIS) (r-paren-token)]
+        [(? COMMA) (comma-token)]
+        [(? COLON) (colon-token)]
+        [(? SEMICOLON) (semicolon-token)]
+        [(? LEFT-SQUARE-BRACKET) (l-square-bracket-token)]
+        [(? RIGHT-SQUARE-BRACKET) (r-square-bracket-token)]
+        [(? LEFT-CURLY-BRACKET) (l-curly-bracket-token)]
+        [(? RIGHT-CURLY-BRACKET) (r-curly-bracket-token)]
         [else (delim-token next)]))
 
 
