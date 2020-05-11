@@ -19,3 +19,4 @@
 (struct r-curly-bracket-token token ())
 (struct string-token token (value))
 (struct bad-string-token token ())
+(struct whitespace-token token ())
