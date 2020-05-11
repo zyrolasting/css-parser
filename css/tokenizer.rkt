@@ -35,24 +35,47 @@
   (define (? ch) (char=? next ch))
 
   (cond [(eof-object? next) (eof-token)]
-        [(whitespace? next) (make-whitespace-token in)]
-        [(? QUOTATION-MARK) (consume-string-token in (read-char in) null)]
-        [(? APOSTROPHE) (consume-string-token in (read-char in) null)]
-        [(? NUMBER-SIGN) (consume-hash-or-delim-token in)]
-        [(? PLUS-SIGN) (make-numeric-or-delim-token in)]
+        [(whitespace? next) (consume-whitespace-token in)]
+        [(? QUOTATION-MARK) (on-string-start in)]
+        [(? NUMBER-SIGN) (on-number-sign in)]
+        [(? APOSTROPHE) (on-string-start in)]
         [(? LEFT-PARENTHESIS) (l-paren-token)]
         [(? RIGHT-PARENTHESIS) (r-paren-token)]
+        [(? PLUS-SIGN) (make-numeric-or-delim-token in)]
         [(? COMMA) (comma-token)]
+        [(? HYPHEN-MINUS) (on-hyphen-minus in)]
+        [(? FULL-STOP) (on-full-stop in)]
         [(? COLON) (colon-token)]
         [(? SEMICOLON) (semicolon-token)]
+        [(? LESS-THAN-SIGN) (on-less-than in)]
+        [(? COMMERCIAL-AT) (on-commercial-at in)]
         [(? LEFT-SQUARE-BRACKET) (l-square-bracket-token)]
         [(? RIGHT-SQUARE-BRACKET) (r-square-bracket-token)]
         [(? LEFT-CURLY-BRACKET) (l-curly-bracket-token)]
         [(? RIGHT-CURLY-BRACKET) (r-curly-bracket-token)]
+        [(digit? next) (consume-numeric-token in)]
+        [(name-start-code-point? next) (consume-ident-like-token in)]
         [else (delim-token next)]))
 
+(define (consume-ident-like-token in)
+  (void))
 
-(define (consume-hash-or-delim-token in)
+(define (on-string-start in)
+  (consume-string-token in (read-char in) null))
+
+(define (on-hyphen-minus in)
+  (void))
+
+(define (on-commercial-at in)
+  (void))
+
+(define (on-full-stop in)
+  (void))
+
+(define (on-less-than in)
+  (void))
+
+(define (on-number-sign in)
   (read-char in) ; Discard #
   (if (or (name-code-point? (peek-char/css in))
           (valid-escape? in))
@@ -62,16 +85,16 @@
                   (consume-name in))
       (delim-token (read-char/css in))))
 
-(define (make-whitespace-token in [next (peek-char/css in)])
+(define (consume-whitespace-token in [next (peek-char/css in)])
   (if (whitespace? next)
-      (make-whitespace-token in (begin (read-char/css in)
-                                       (peek-char/css in)))
+      (consume-whitespace-token in (begin (read-char/css in)
+                                          (peek-char/css in)))
       (whitespace-token)))
 
 (define (make-numeric-or-delim-token in)
   (read-char in) ; Discard + or -
   (if (starts-number? in)
-      (consume-numeric in)
+      (consume-numeric-token in)
       (delim-token (peek-char/css in))))
 
 

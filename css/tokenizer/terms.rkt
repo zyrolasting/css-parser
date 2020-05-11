@@ -32,7 +32,7 @@
   (and (char? ch)
        (name-start-code-point? ch)
        (digit? ch)
-       (char=? ch HYPHEN)))
+       (char=? ch HYPHEN-MINUS)))
 
 (define (uppercase-letter? ch)
   (and (char? ch)
