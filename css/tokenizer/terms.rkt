@@ -58,3 +58,11 @@
        (or (char=? ch LINE-FEED)
            (char=? ch CHARACTER-TABULATION)
            (char=? ch SPACE))))
+
+(define (sign-character? maybe-sign)
+  (or (char=? maybe-sign PLUS-SIGN)
+      (char=? maybe-sign HYPHEN-MINUS)))
+
+(define (exponent-indicator? maybe-e)
+  (or (char=? maybe-e LATIN-CAPITAL-LETTER-E)
+      (char=? maybe-e LATIN-SMALL-LETTER-E)))
