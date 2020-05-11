@@ -15,7 +15,7 @@
 (struct colon-token token ())
 (struct comma-token token ())
 (struct delim-token token (value))
-(struct dimension-token token (type value))
+(struct dimension-token token (type value unit))
 (struct eof-token token ())
 (struct function-token token ())
 (struct hash-token token (type value))
