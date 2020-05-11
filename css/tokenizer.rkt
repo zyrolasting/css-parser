@@ -26,13 +26,13 @@
 
 ; §4.3.1
 (define (get-next-token in)
-  (define next (peek-char/css in))
-  (define (? ch) (char=? next ch))
-
   (let loop ()
     (when (starts-comment? in)
       (consume-comment in)
       (loop)))
+
+  (define next (peek-char/css in))
+  (define (? ch) (char=? next ch))
 
   (cond [(eof-object? next) (eof-token)]
         [(whitespace? next) (make-whitespace-token in)]
