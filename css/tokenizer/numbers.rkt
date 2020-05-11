@@ -1,26 +1,26 @@
 #lang racket/base
 
+(provide consume-number
+         starts-number?)
+
 (require "../preprocess.rkt"
          "terms.rkt")
 
-(module+ test
-  (require rackunit)
 
-  (define (check-consume-number str expected-type expected-value)
-    (define-values (val type)
-      (consume-number (open-input-string str)))
-    (check-equal? type expected-type)
+; §4.3.10
+(define starts-number?
+  (case-lambda
+    [(in) (apply starts-number?
+                 (peek-char/css/multi in 3))]
+    [(-1st -2nd -3rd)
+     (cond [(sign-character? -1st)
+            (or (digit? -2nd)
+                (and (char=? -2nd #\u002E)
+                     (digit? -3rd)))]
+           [(char=? -1st #\u002E)
+            (digit? -2nd)]
+           [else (digit? -1st)])]))
 
-    (check-true
-     (if (eq? type 'number)
-         (< (abs (exact->inexact (- val expected-value))) 0.001)
-         (equal? val expected-value))))
-
-  (test-case "§4.3.12"
-    (check-consume-number "100" 'integer 100)
-    (check-consume-number "100.0" 'number 100)
-    (check-consume-number "-100.91" 'number -100.91)
-    (check-consume-number "9.7e-1" 'number #i9.7e-1)))
 
 (define (sign-character? maybe-sign)
   (or (char=? maybe-sign #\u002B)
@@ -150,3 +150,23 @@
     (and (char? ch)
          (? ch)
          (read-char in))))
+
+
+(module+ test
+  (require rackunit)
+
+  (define (check-consume-number str expected-type expected-value)
+    (define-values (val type)
+      (consume-number (open-input-string str)))
+    (check-equal? type expected-type)
+
+    (check-true
+     (if (eq? type 'number)
+         (< (abs (exact->inexact (- val expected-value))) 0.001)
+         (equal? val expected-value))))
+
+  (test-case "§4.3.12"
+    (check-consume-number "100" 'integer 100)
+    (check-consume-number "100.0" 'number 100)
+    (check-consume-number "-100.91" 'number -100.91)
+    (check-consume-number "9.7e-1" 'number #i9.7e-1)))
