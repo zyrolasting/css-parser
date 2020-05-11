@@ -28,8 +28,13 @@
 (define (get-next-token in)
   (define next (peek-char/css in))
   (define (? ch) (char=? next ch))
+
+  (let loop ()
+    (when (starts-comment? in)
+      (consume-comment in)
+      (loop)))
+
   (cond [(eof-object? next) (eof-token)]
-        [(starts-comment? in) (consume-comment in)]
         [(whitespace? next) (make-whitespace-token in)]
         [(? QUOTATION-MARK) (consume-string-token in (read-char in) null)]
         [(? APOSTROPHE) (consume-string-token in (read-char in) null)]
