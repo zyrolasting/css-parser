@@ -1,11 +1,23 @@
 #lang racket/base
 
 (provide consume-number
+         consume-numeric
          starts-number?)
 
 (require "../preprocess.rkt"
+         "code-points.rkt"
+         "names.rkt"
+         "tokens.rkt"
+         "identifiers.rkt"
          "terms.rkt")
 
+(define (consume-numeric in)
+  (define-values (number type) (consume-number in))
+  (if (starts-identifier? in)
+      (dimension-token type number (consume-name in))
+      (if (char=? in PERCENTAGE-SIGN)
+          (percentage-token number)
+          (number-token type number))))
 
 ; §4.3.10
 (define starts-number?
