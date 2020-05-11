@@ -22,22 +22,6 @@
            [else (digit? -1st)])]))
 
 
-(define (sign-character? maybe-sign)
-  (or (char=? maybe-sign #\u002B)
-      (char=? maybe-sign #\u002D)))
-
-(define (read-base10-digits in)
-  (let loop ([next (peek-char in)] [accum null])
-    (if (digit? next)
-        (begin (read-char in)
-               (loop (peek-char in) (cons next accum)))
-        (values (string->number (apply string (reverse accum)))
-                (length accum)))))
-
-(define (exponent-indicator? maybe-e)
-  (or (char=? maybe-e #\u0045)
-      (char=? maybe-e #\u0065)))
-
 ; Implementation of §4.3.12
 ; Comments indicate steps followed from spec.
 (define (consume-number in)
@@ -150,6 +134,23 @@
     (and (char? ch)
          (? ch)
          (read-char in))))
+
+
+(define (sign-character? maybe-sign)
+  (or (char=? maybe-sign #\u002B)
+      (char=? maybe-sign #\u002D)))
+
+(define (read-base10-digits in)
+  (let loop ([next (peek-char in)] [accum null])
+    (if (digit? next)
+        (begin (read-char in)
+               (loop (peek-char in) (cons next accum)))
+        (values (string->number (apply string (reverse accum)))
+                (length accum)))))
+
+(define (exponent-indicator? maybe-e)
+  (or (char=? maybe-e #\u0045)
+      (char=? maybe-e #\u0065)))
 
 
 (module+ test
