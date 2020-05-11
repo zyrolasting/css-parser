@@ -6,7 +6,7 @@
 
 (struct token ())
 (struct delim-token token (value))
-(struct hash-token token (type))
+(struct hash-token token (type value))
 (struct eof-token token ())
 (struct l-paren-token token ())
 (struct r-paren-token token ())
