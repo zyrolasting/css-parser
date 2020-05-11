@@ -51,7 +51,9 @@
   (read-char in) ; Discard #
   (if (or (name-code-point? (peek-char/css in))
           (valid-escape? in))
-      (hash-token (if (starts-identifier? in) 'id #f)
+      (hash-token (if (starts-identifier? in)
+                      "id"
+                      "unrestricted")
                   (consume-name in))
       (delim-token (read-char/css in))))
 
