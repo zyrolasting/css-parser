@@ -17,5 +17,5 @@
 (struct r-square-bracket-token token ())
 (struct l-curly-bracket-token token ())
 (struct r-curly-bracket-token token ())
-(struct string-token (value))
-(struct bad-string-token ())
+(struct string-token token (value))
+(struct bad-string-token token ())
