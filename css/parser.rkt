@@ -4,16 +4,6 @@
          "tokenizer.rkt"
          "exn.rkt")
 
-(struct exn:fail:css:syntax exn:fail (line column))
-
-(define (make-syntax-error/css msg [tok (get-next-token)])
-  (exn:fail:css:syntax msg
-                       (current-continuation-marks)
-                       (token-line tok)
-                       (token-column tok)))
-
-(define (raise-syntax-error/css msg [tok (get-next-token)])
-  (raise (make-syntax-error/css msg tok)))
 
 ;=======================================================
 ; §5: Parse tree nodes and definitions
@@ -436,3 +426,14 @@
   (when (whitespace-token? (get-next-token))
     (consume-next-token tokens)
     (consume-leading-whitespace-tokens tokens)))
+
+(struct exn:fail:css:syntax exn:fail (line column))
+
+(define (make-syntax-error/css msg [tok (get-next-token)])
+  (exn:fail:css:syntax msg
+                       (current-continuation-marks)
+                       (token-line tok)
+                       (token-column tok)))
+
+(define (raise-syntax-error/css msg [tok (get-next-token)])
+  (raise (make-syntax-error/css msg tok)))
