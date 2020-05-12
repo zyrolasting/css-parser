@@ -203,8 +203,9 @@
   (define-values (number type) (consume-number in))
   (if (starts-identifier? in)
       (dimension-token type number (consume-name in))
-      (if (char=? in PERCENTAGE-SIGN)
-          (percentage-token number)
+      (if (equal? (peek-char/css in) PERCENTAGE-SIGN)
+          (begin (read-char in)
+                 (percentage-token number))
           (number-token type number))))
 
 
