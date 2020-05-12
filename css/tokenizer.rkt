@@ -312,7 +312,7 @@
                (member next (list QUOTATION-MARK
                                   APOSTROPHE
                                   LEFT-PARENTHESIS)))
-           (maybe-raise (bad-url-err))
+           (maybe-raise bad-url-err)
            (consume-bad-url-remnants in)
            (bad-url-token)]
 
