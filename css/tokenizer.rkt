@@ -42,8 +42,9 @@
 
   (define next (peek-char/css in))
   (define (? ch) (char=? next ch))
+  (capture-position! in)
 
-  (cond [(eof-object? next) (eof-token)]
+  (cond [(eof-object? next) (make-eof-token)]
         [(whitespace? next) (consume-whitespace-token in)]
         [(? QUOTATION-MARK) (on-string-start in)]
         [(? NUMBER-SIGN) (on-number-sign in)]
@@ -64,21 +65,22 @@
         [(? RIGHT-CURLY-BRACKET) (on-r-curly-bracket in)]
         [(digit? next) (consume-numeric-token in)]
         [(name-start-code-point? next) (consume-ident-like-token in)]
-        [else (delim-token (read-char/css in))]))
-
+        [else (make-delim-token (read-char/css in))]))
 
 (define (make-single-char-consumer tok)
-  (λ (in) (read-char/css in) (tok)))
+  (λ (in)
+    (read-char/css in)
+    (tok)))
 
-(define on-colon (make-single-char-consumer colon-token))
-(define on-semicolon (make-single-char-consumer semicolon-token))
-(define on-comma (make-single-char-consumer comma-token))
-(define on-l-paren (make-single-char-consumer l-paren-token))
-(define on-r-paren (make-single-char-consumer r-paren-token))
-(define on-l-square-bracket (make-single-char-consumer l-square-bracket-token))
-(define on-r-square-bracket (make-single-char-consumer r-square-bracket-token))
-(define on-l-curly-bracket (make-single-char-consumer l-curly-bracket-token))
-(define on-r-curly-bracket (make-single-char-consumer r-curly-bracket-token))
+(define on-colon (make-single-char-consumer make-colon-token))
+(define on-semicolon (make-single-char-consumer make-semicolon-token))
+(define on-comma (make-single-char-consumer make-comma-token))
+(define on-l-paren (make-single-char-consumer make-l-paren-token))
+(define on-r-paren (make-single-char-consumer make-r-paren-token))
+(define on-l-square-bracket (make-single-char-consumer make-l-square-bracket-token))
+(define on-r-square-bracket (make-single-char-consumer make-r-square-bracket-token))
+(define on-l-curly-bracket (make-single-char-consumer make-l-curly-bracket-token))
+(define on-r-curly-bracket (make-single-char-consumer make-r-curly-bracket-token))
 
 (define (on-string-start in)
   (consume-string-token in (read-char in) null))
@@ -91,40 +93,40 @@
                  (list HYPHEN-MINUS GREATER-THAN-SIGN))
          (read-char in)
          (read-char in)
-         (cdc-token)]
+         (make-cdc-token)]
 
         [(starts-identifier? in)
          (consume-ident-like-token in)]
 
-        [else (delim-token (read-char in))]))
+        [else (make-delim-token (read-char in))]))
 
 (define (on-commercial-at in)
   (if (starts-identifier? in)
-      (at-keyword-token (consume-name in))
-      (delim-token (read-char in))))
+      (make-at-keyword-token (consume-name in))
+      (make-delim-token (read-char in))))
 
 (define (on-full-stop in)
   (if (starts-number? in)
       (consume-numeric-token in)
-      (delim-token (read-char in))))
+      (make-delim-token (read-char in))))
 
 (define (on-less-than in)
   (if (equal? (peek-char/css/multi in 3)
               (list LESS-THAN-SIGN
                     HYPHEN-MINUS
                     HYPHEN-MINUS))
-      (cdo-token)
-      (delim-token (read-char in))))
+      (make-cdo-token)
+      (make-delim-token (read-char in))))
 
 (define (on-number-sign in)
   (read-char in) ; Discard #
   (if (or (name-code-point? (peek-char/css in))
           (valid-escape? in))
-      (hash-token (if (starts-identifier? in)
+      (make-hash-token (if (starts-identifier? in)
                       "id"
                       "unrestricted")
                   (consume-name in))
-      (delim-token (read-char/css in))))
+      (make-delim-token (read-char/css in))))
 
 (define (consume-whitespace in)
   (when (whitespace? (peek-char/css in))
@@ -133,13 +135,13 @@
 
 (define (consume-whitespace-token in)
   (consume-whitespace in)
-  (whitespace-token))
+  (make-whitespace-token))
 
 (define (make-numeric-or-delim-token in)
   (read-char in) ; Discard + or -
   (if (starts-number? in)
       (consume-numeric-token in)
-      (delim-token (peek-char/css in))))
+      (make-delim-token (peek-char/css in))))
 
 
 ;=======================================================
@@ -208,11 +210,11 @@
 (define (consume-numeric-token in)
   (define-values (number type) (consume-number in))
   (if (starts-identifier? in)
-      (dimension-token type number (consume-name in))
+      (make-dimension-token type number (consume-name in))
       (if (equal? (peek-char/css in) PERCENTAGE-SIGN)
           (begin (read-char in)
-                 (percentage-token number))
-          (number-token type number))))
+                 (make-percentage-token number))
+          (make-number-token type number))))
 
 
 ;=======================================================
@@ -238,12 +240,12 @@
                       (let ([-2nd (cadr next-two)])
                         (or (equal? -2nd APOSTROPHE)
                             (equal? -2nd QUOTATION-MARK)))))
-             (function-token str)
+             (make-function-token str)
              (consume-url-token in))]
         [(equal? (peek-char/css in) LEFT-PARENTHESIS)
          (read-char/css in)
-         (function-token str)]
-        [else (ident-token str)]))
+         (make-function-token str)]
+        [else (make-ident-token str)]))
 
 
 ;=======================================================
@@ -257,10 +259,10 @@
 
           [(char=? next ending-char)
            (read-char/css in) ; Consume closing quote.
-           (string-token (apply string (reverse chars)))]
+           (make-string-token (apply string (reverse chars)))]
 
           [(char=? next LINE-FEED) ; Unescaped newline within string literal.
-           (bad-string-token)]
+           (make-bad-string-token)]
 
           ; Process escaped characters
           [(char=? next REVERSE-SOLIDUS)
@@ -300,10 +302,10 @@
              [accum null])
     (cond [(eof-object? next)
            (maybe-raise eof-err)
-           (url-token (apply string (reverse accum)))]
+           (make-url-token (apply string (reverse accum)))]
 
           [(equal? next RIGHT-PARENTHESIS)
-           (url-token (apply string (reverse accum)))]
+           (make-url-token (apply string (reverse accum)))]
 
           [(whitespace? next)
            (consume-whitespace in)
@@ -315,7 +317,7 @@
                                   LEFT-PARENTHESIS)))
            (maybe-raise bad-url-err)
            (consume-bad-url-remnants in)
-           (bad-url-token)]
+           (make-bad-url-token)]
 
           [(equal? next REVERSE-SOLIDUS)
            (if (valid-escape? in)
