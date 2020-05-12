@@ -99,8 +99,8 @@
     (define has-rule-location (get-next-token))
     (define rule
       (cond [(eof-token? (get-next-token))
-             (maybe-raise-css3-syntax-error has-rule-location
-                                            "Unexpected EOF when parsing rule")]
+             (raise (make-css3-syntax-error has-rule-location
+                                            "Unexpected EOF when parsing rule"))]
             [(at-keyword-token? (get-next-token))
              (consume-at-rule tokens)]
             [else (consume-qualified-rule)]))
