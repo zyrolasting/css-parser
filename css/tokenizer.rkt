@@ -336,7 +336,6 @@
     (cond [(eof-object? next)
            #\uFFFD]
           [(hex-digit? next)
-           (define err (make-parse-error "Too many hex digits"))
            (define hex
              (string->number
               (let loop ([digits (list next)] [succ (peek-char in)])
