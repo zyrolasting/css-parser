@@ -38,9 +38,9 @@
 
 (define (name-code-point? ch)
   (and (char? ch)
-       (name-start-code-point? ch)
-       (digit? ch)
-       (char=? ch HYPHEN-MINUS)))
+       (or (name-start-code-point? ch)
+           (digit? ch)
+           (char=? ch HYPHEN-MINUS))))
 
 (define (uppercase-letter? ch)
   (and (char? ch)
