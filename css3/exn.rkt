@@ -1,25 +1,39 @@
 #lang racket/base
 
 (provide (struct-out exn:fail:css:parse)
-         make-parse-error
+         make-css3-parse-error
+         make-css3-syntax-error
          maybe-raise
          strict?
-         raise-parse-error)
+         maybe-raise-css3-parse-error
+         maybe-raise-css3-syntax-error)
 
-(struct exn:fail:css:parse exn:fail (line col))
+(require "tokenizer/tokens.rkt")
+
+(struct exn:fail:css:parse  exn:fail (line column))
+(struct exn:fail:css:syntax exn:fail (line column))
 
 (define strict? (make-parameter #t))
 
-(define (make-parse-error in msg)
+(define (maybe-raise v)
+  (when (strict?)
+    (raise v)))
+
+(define (make-css3-parse-error in msg)
   (let-values ([(line col pos) (port-next-location in)])
     (exn:fail:css:parse (format "(~a:~a) ~a" (or line "?") (or col "?") msg)
                         (current-continuation-marks)
                         line
                         col)))
 
-(define (maybe-raise v)
-  (when (strict?)
-    (raise v)))
+(define (make-css3-syntax-error msg tok)
+  (exn:fail:css:syntax msg
+                       (current-continuation-marks)
+                       (token-line tok)
+                       (token-column tok)))
 
-(define (raise-parse-error in msg)
-  (maybe-raise (make-parse-error in msg)))
+(define (maybe-raise-css3-parse-error in msg)
+  (maybe-raise (make-css3-parse-error in msg)))
+
+(define (maybe-raise-css3-syntax-error msg tok)
+  (maybe-raise (make-css3-syntax-error msg tok)))
