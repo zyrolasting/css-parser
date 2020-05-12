@@ -10,6 +10,8 @@
          "tokenizer/tokens.rkt"
          racket/generator)
 
+(module+ main (tokenize (current-input-port)))
+
 
 ;=======================================================
 ; §4: Tokenization
