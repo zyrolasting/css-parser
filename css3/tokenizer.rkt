@@ -4,7 +4,7 @@
          tokenize)
 
 (require "preprocess.rkt"
-         "exn.rkt"
+         "errors.rkt"
          "tokenizer/code-points.rkt"
          "tokenizer/terms.rkt"
          "tokenizer/tokens.rkt"
@@ -155,7 +155,7 @@
           (list ASTERISK SOLIDUS)))
 
 (define (consume-comment in)
-  (define eof-err (make-parse-error in "Unexpected EOF in comment."))
+  (define eof-err (make-css3-parse-error in "Unexpected EOF in comment."))
   (read-char in)
   (read-char in)
   (let loop ([next (peek-char/css in)])
@@ -253,7 +253,7 @@
 (define (consume-string-token in ending-char [chars null])
   (let ([next (peek-char/css in)])
     (cond [(eof-object? next)
-           (raise-parse-error in "Unexpected EOF when parsing string.")]
+           (maybe-raise-css3-parse-error in "Unexpected EOF when parsing string.")]
 
           [(char=? next ending-char)
            (read-char/css in) ; Consume closing quote.
@@ -291,8 +291,8 @@
 ; ======================================================
 
 (define (consume-url-token in)
-  (define eof-err (make-parse-error in "Unexpected EOF when parsing URL."))
-  (define bad-url-err (make-parse-error in "Malformed URL."))
+  (define eof-err (make-css3-parse-error in "Unexpected EOF when parsing URL."))
+  (define bad-url-err (make-css3-parse-error in "Malformed URL."))
 
   (consume-whitespace in)
 

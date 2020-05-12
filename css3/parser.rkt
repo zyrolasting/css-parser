@@ -2,7 +2,7 @@
 
 (require "tokenizer/tokens.rkt"
          "tokenizer.rkt"
-         "exn.rkt")
+         "errors.rkt")
 
 
 ;=======================================================
@@ -96,20 +96,24 @@
   (with-handlers ([exn:fail:css:syntax? values])
     (consume-leading-whitespace-tokens tokens)
 
+    (define has-rule-location (get-next-token))
     (define rule
       (cond [(eof-token? (get-next-token))
-             (raise-syntax-error/css "Unexpected EOF when parsing rule")]
+             (maybe-raise-css3-syntax-error has-rule-location
+                                            "Unexpected EOF when parsing rule")]
             [(at-keyword-token? (get-next-token))
              (consume-at-rule tokens)]
             [else (consume-qualified-rule)]))
 
     (unless rule
-      (raise-syntax-error/css "Could not parse rule"))
+      (maybe-raise-css3-syntax-error has-rule-location
+                                     "Could not parse rule"))
 
     (consume-leading-whitespace-tokens tokens)
     (if (eof-token? (get-next-token))
         rule
-        (make-syntax-error/css "Expected EOF after parsing rule"))))
+        (make-css3-syntax-error (get-next-token)
+                                "Expected EOF after parsing rule"))))
 
 
 ;=======================================================
@@ -119,12 +123,9 @@
 (define (parse-declaration tokens)
   (consume-leading-whitespace-tokens tokens)
   (cond [(not (ident-token? (get-next-token)))
-         (make-syntax-error/css "Expected ident token"
-                                (get-next-token))]
+         (make-css3-syntax-error (get-next-token) "Expected ident token")]
         [else
-         (let* ([err (make-syntax-error/css
-                      "Expected declaration"
-                      (get-next-token))]
+         (let* ([err (make-css3-syntax-error (get-next-token) "Expected declaration")]
                 [decl (consume-declaration tokens)])
            (or decl err))]))
 
@@ -145,7 +146,7 @@
   (consume-leading-whitespace-tokens tokens)
   (define next (get-next-token))
   (cond [(eof-token? next)
-         (or value (make-syntax-error/css "Unexpected EOF when parsing component value" next))]
+         (or value (make-css3-syntax-error next "Unexpected EOF when parsing component value"))]
         [else (parse-component-value tokens (consume-component-value))]))
 
 
@@ -223,9 +224,7 @@
     (cond [(semicolon-token? current)
            (build current prelude #f)]
           [(eof-token? current)
-           (maybe-raise
-            (make-syntax-error/css "Unexpected EOF in at-rule"
-                                   current))
+           (maybe-raise-css3-syntax-error current "Unexpected EOF in at-rule")
            (build current null #f)]
           [(l-curly-bracket-token? current)
            (build current
@@ -250,9 +249,9 @@
   (let loop ([prelude null])
     (define current (consume-next-token tokens))
     (cond [(eof-token? current)
-           (maybe-raise (make-syntax-error/css
-                         "Unexpected EOF in qualified rule"
-                         start-tok))
+           (maybe-raise-css3-parse-error
+            "Unexpected EOF in qualified rule"
+            start-tok)
            #f]
           [(l-curly-bracket-token? current)
            (qualified-rule line col
@@ -299,7 +298,7 @@
                                               decls))]
 
         [else
-         (maybe-raise (make-syntax-error/css ""))
+         (maybe-raise-css3-syntax-error current "Unrecognized token in declaration")
          (reconsume-current-token)
          (let loop ([tmp (list current)])
            (define next (get-next-token))
@@ -319,8 +318,7 @@
 
     (if (colon-token? (get-next-token))
         (consume-next-token tokens)
-        (begin (maybe-raise (make-syntax-error/css "Expected colon in declaration"
-                                                   (get-next-token)))
+        (begin (maybe-raise-css3-syntax-error (get-next-token) "Expected colon in declaration")
                (raise #f)))
 
     (consume-leading-whitespace-tokens tokens)
@@ -388,8 +386,7 @@
   (let loop ([value null])
     (define in-body (consume-next-token))
     (cond [(eof-token? in-body)
-           (maybe-raise (make-syntax-error/css "Unexpected EOF in simple block"
-                                               starting-token))
+           (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in simple block")
            (simple-block starting-token (reverse value))]
           [(ending-token? in-body)
            (simple-block starting-token (reverse value))]
@@ -408,8 +405,7 @@
   (let loop ([value null])
     (define in-body (consume-next-token))
     (cond [(eof-token? in-body)
-           (maybe-raise (make-syntax-error/css "Unexpected EOF in function"
-                                               starting-token))
+           (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in function")
            (function name (reverse value))]
           [(l-paren-token? in-body)
            (function name (reverse value))]
@@ -426,14 +422,3 @@
   (when (whitespace-token? (get-next-token))
     (consume-next-token tokens)
     (consume-leading-whitespace-tokens tokens)))
-
-(struct exn:fail:css:syntax exn:fail (line column))
-
-(define (make-syntax-error/css msg [tok (get-next-token)])
-  (exn:fail:css:syntax msg
-                       (current-continuation-marks)
-                       (token-line tok)
-                       (token-column tok)))
-
-(define (raise-syntax-error/css msg [tok (get-next-token)])
-  (raise (make-syntax-error/css msg tok)))

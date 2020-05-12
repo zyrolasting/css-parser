@@ -1,6 +1,7 @@
 #lang racket/base
 
 (provide (struct-out exn:fail:css:parse)
+         (struct-out exn:fail:css:syntax)
          make-css3-parse-error
          make-css3-syntax-error
          maybe-raise
@@ -26,7 +27,7 @@
                         line
                         col)))
 
-(define (make-css3-syntax-error msg tok)
+(define (make-css3-syntax-error tok msg)
   (exn:fail:css:syntax msg
                        (current-continuation-marks)
                        (token-line tok)
@@ -35,5 +36,5 @@
 (define (maybe-raise-css3-parse-error in msg)
   (maybe-raise (make-css3-parse-error in msg)))
 
-(define (maybe-raise-css3-syntax-error msg tok)
-  (maybe-raise (make-css3-syntax-error msg tok)))
+(define (maybe-raise-css3-syntax-error tok msg)
+  (maybe-raise (make-css3-syntax-error tok msg)))
