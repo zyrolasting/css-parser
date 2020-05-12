@@ -156,7 +156,7 @@
   (let loop ([next (peek-char/css in)])
     (cond [(eof-object? next)
            (maybe-raise eof-err)]
-          [(and (char=? next #\u002A)
+          [(and (char=? next ASTERISK)
                 (ends-comment? in))
            (read-char in)
            (read-char in)]
@@ -171,8 +171,8 @@
            rackunit)
 
   (test-case "Can see comment endpoints"
-    (check-pred starts-comment? (open-input-string (string #\u002F #\u002A)))
-    (check-pred ends-comment?   (open-input-string (string #\u002A #\u002F))))
+    (check-pred starts-comment? (open-input-string (string SOLIDUS ASTERISK)))
+    (check-pred ends-comment?   (open-input-string (string ASTERISK SOLIDUS))))
 
   (test-case "§4.3.2: Consume comments"
     (define (run in)
@@ -226,9 +226,9 @@
              (read-char/css in)
              (loop)))
 
-         (define next-two (peek-string/css in 2))
-         (if (or (equal? next-two (string QUOTATION-MARK QUOTATION-MARK))
-                 (equal? next-two (string APOSTROPHE APOSTROPHE))
+         (define next-two (peek-char/css/multi in 2))
+         (if (or (equal? next-two (list QUOTATION-MARK QUOTATION-MARK))
+                 (equal? next-two (list APOSTROPHE APOSTROPHE))
                  (and (whitespace? (car next-two))
                       (let ([-2nd (cadr next-two)])
                         (or (equal? -2nd APOSTROPHE)
@@ -254,18 +254,18 @@
            (read-char/css in) ; Consume closing quote.
            (string-token (apply string (reverse chars)))]
 
-          [(char=? next #\u000A) ; Unescaped newline within string literal.
+          [(char=? next LINE-FEED) ; Unescaped newline within string literal.
            (bad-string-token)]
 
           ; Process escaped characters
-          [(char=? next #\u005C)
+          [(char=? next REVERSE-SOLIDUS)
            (read-char/css in) ; Consume the '\'
            (let ([escaped (peek-char/css in)])
              (cond [(eof-object? escaped)
                     ; Lead into error case.
                     (consume-string-token in ending-char chars)]
 
-                   [(char=? escaped #\u000A)
+                   [(char=? escaped LINE-FEED)
                     ; Escaped newline. Consume the newline and continue
                     ; as if the next line is part of the literal.
                     (read-char/css in)
@@ -365,8 +365,8 @@
     [(in) (apply valid-escape?
                  (peek-char/css/multi in 2))]
     [(prev next)
-     (and (char=? prev #\u005C)
-          (not (char=? next #\u000A)))]))
+     (and (char=? prev REVERSE-SOLIDUS)
+          (not (char=? next LINE-FEED)))]))
 
 
 ;=======================================================
@@ -381,14 +381,14 @@
             (peek-char/css/multi in 3))]
 
     [(-1st -2nd -3rd)
-     (cond [(char=? -1st #\u002D)
+     (cond [(char=? -1st HYPHEN-MINUS)
             (or (name-start-code-point? -2nd)
-                (char=? -2nd #\u002D)
+                (char=? -2nd HYPHEN-MINUS)
                 (valid-escape? -2nd -3rd))]
 
            [(name-start-code-point? -1st) #t]
 
-           [(char=? -1st #\u005C)
+           [(char=? -1st REVERSE-SOLIDUS)
             (valid-escape? -1st -2nd)]
 
            [else #f])]))
@@ -406,9 +406,9 @@
     [(-1st -2nd -3rd)
      (cond [(sign-character? -1st)
             (or (digit? -2nd)
-                (and (char=? -2nd #\u002E)
+                (and (char=? -2nd FULL-STOP)
                      (digit? -3rd)))]
-           [(char=? -1st #\u002E)
+           [(char=? -1st FULL-STOP)
             (digit? -2nd)]
            [else (digit? -1st)])]))
 
@@ -459,7 +459,7 @@
   ; 4.
   (define maybe-decimal-start (peek-char/css/multi in 2))
   (when (and (= (length maybe-decimal-start) 2)
-             (char=? (car maybe-decimal-start) #\u002E)
+             (char=? (car maybe-decimal-start) FULL-STOP)
              (digit? (cadr maybe-decimal-start)))
     (consume-char!)
     (consume-char!)
@@ -475,7 +475,7 @@
           [maybe-digit-or-other (if (= elen 3)
                                     (caddr maybe-e-notation-start)
                                     #f)])
-      (when (and (or (char=? maybe-e #\u0045) (char=? maybe-e #\u0065))
+      (when (and (or (char=? maybe-e LATIN-CAPITAL-LETTER-E) (char=? maybe-e LATIN-SMALL-LETTER-E))
                  (if (sign-character? maybe-sign-or-digit)
                      (digit? maybe-digit-or-other)
                      (digit? maybe-sign-or-digit)))
@@ -515,7 +515,7 @@
 
   ; 1. Read sign
   (define s
-    (if (char=? (peek-char in) #\u002D)
+    (if (char=? (peek-char in) HYPHEN-MINUS)
         (begin (read-char in) -1)
         1))
 
@@ -529,7 +529,7 @@
 
   ; 3. Read decimal point
   (define decimal?
-    (read-if in (λ (ch) (char=? ch #\u002E))))
+    (read-if in (λ (ch) (char=? ch FULL-STOP))))
 
   ; 4. Read fractional part
   (define-values (f d)
@@ -544,7 +544,7 @@
   ; 6. Exponent sign
   (define t
     (if e-notation?
-        (if (read-if in (λ (ch) (char=? ch #\u002D)))
+        (if (read-if in (λ (ch) (char=? ch HYPHEN-MINUS)))
             -1 1)
         1))
 
