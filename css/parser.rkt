@@ -1,7 +1,6 @@
 #lang racket/base
 
-(require racket/sequence
-         "tokenizer/tokens.rkt"
+(require "tokenizer/tokens.rkt"
          "tokenizer.rkt"
          "exn.rkt")
 
@@ -52,11 +51,11 @@
 (define next-token (make-thread-cell #f))
 (define reconsume? (make-thread-cell #f))
 
-(define (consume-next-token seq)
+(define (consume-next-token gen)
   (if (thread-cell-ref reconsume?)
       (thread-cell-set! reconsume? #f)
       (begin (thread-cell-set! current-token (thread-cell-ref next-token))
-             (thread-cell-set! next-token (sequence-ref seq 0))))
+             (thread-cell-set! next-token (gen))))
   (thread-cell-ref current-token))
 
 (define (get-current-token)

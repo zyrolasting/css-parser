@@ -21,12 +21,12 @@
 ;=======================================================
 
 (define (tokenize in)
-  (in-generator
-   (let loop ()
-     (define next (get-next-token in))
+  (generator ()
+   (let loop ([next (get-next-token in)])
      (yield next)
-     (unless (eof-token? next)
-       (loop)))))
+     (loop (if (eof-token? next)
+               next
+               (get-next-token in))))))
 
 ;=======================================================
 ; §4.3.1: Consume a token
