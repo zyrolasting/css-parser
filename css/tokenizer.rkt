@@ -10,7 +10,9 @@
          "tokenizer/tokens.rkt"
          racket/generator)
 
-(module+ main (tokenize (current-input-port)))
+(module+ main
+  (for ([tok (tokenize (current-input-port))])
+    (writeln tok)))
 
 
 ;=======================================================
