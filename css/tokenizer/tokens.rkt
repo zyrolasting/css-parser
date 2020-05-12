@@ -54,3 +54,17 @@
 (token-struct string-token (value))
 (token-struct url-token (value))
 (token-struct whitespace-token ())
+
+(define (get-token-value t)
+  (and (token? t)
+       (cond [(at-keyword-token? (at-keyword-token-value t))]
+             [(delim-token? (delim-token-value t))]
+             [(dimension-token? (dimension-token-value t))]
+             [(function-token? (function-token-value t))]
+             [(hash-token? (hash-token-value t))]
+             [(ident-token? (ident-token-value t))]
+             [(number-token? (number-token-value t))]
+             [(percentage-token? (percentage-token-value t))]
+             [(string-token? (string-token-value t))]
+             [(url-token? (url-token-value t))]
+             [else #f])))
