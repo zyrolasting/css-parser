@@ -64,7 +64,7 @@
 (define (get-next-token)
   (thread-cell-ref next-token))
 
-(define (reconsume-current-token seq)
+(define (reconsume-current-token)
   (thread-cell-set! reconsume? #t))
 
 
