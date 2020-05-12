@@ -12,7 +12,7 @@
 
 (define (make-parse-error in msg)
   (let-values ([(line col pos) (port-next-location in)])
-    (exn:fail:css:parse (format "(~a:~a) ~a" line col msg)
+    (exn:fail:css:parse (format "(~a:~a) ~a" (or line "?") (or col "?") msg)
                         (current-continuation-marks)
                         line
                         col)))
