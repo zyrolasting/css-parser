@@ -1,7 +1,34 @@
 #lang racket/base
 
 (provide get-next-token
-         tokenize)
+         tokenize
+         (struct-out at-keyword-token)
+         (struct-out bad-string-token)
+         (struct-out bad-url-token)
+         (struct-out cdc-token)
+         (struct-out cdo-token)
+         (struct-out colon-token)
+         (struct-out comma-token)
+         (struct-out delim-token)
+         (struct-out dimension-token)
+         (struct-out eof-token)
+         (struct-out function-token)
+         (struct-out hash-token)
+         (struct-out ident-token)
+         (struct-out l-curly-bracket-token)
+         (struct-out l-paren-token)
+         (struct-out l-square-bracket-token)
+         (struct-out number-token)
+         (struct-out percentage-token)
+         (struct-out r-curly-bracket-token)
+         (struct-out r-paren-token)
+         (struct-out r-square-bracket-token)
+         (struct-out semicolon-token)
+         (struct-out string-token)
+         (struct-out url-token)
+         (struct-out whitespace-token)
+         (struct-out token))
+
 
 (require "preprocess.rkt"
          "errors.rkt"
