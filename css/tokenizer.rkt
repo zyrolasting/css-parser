@@ -11,6 +11,7 @@
          racket/generator)
 
 (module+ main
+  (port-count-lines! (current-input-port))
   (for ([tok (tokenize (current-input-port))])
     (writeln tok)))
 
