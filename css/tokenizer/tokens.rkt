@@ -7,7 +7,7 @@
 (struct token ())
 
 ; Keep alphabetized, plz.
-(struct at-keyword-token token ())
+(struct at-keyword-token token (value))
 (struct bad-string-token token ())
 (struct bad-url-token token ())
 (struct cdc-token token ())
@@ -17,9 +17,9 @@
 (struct delim-token token (value))
 (struct dimension-token token (type value unit))
 (struct eof-token token ())
-(struct function-token token ())
+(struct function-token token (value))
 (struct hash-token token (type value))
-(struct ident-token token ())
+(struct ident-token token (value))
 (struct l-curly-bracket-token token ())
 (struct l-paren-token token ())
 (struct l-square-bracket-token token ())
@@ -30,5 +30,5 @@
 (struct r-square-bracket-token token ())
 (struct semicolon-token token ())
 (struct string-token token (value))
-(struct url-token token ())
+(struct url-token token (value))
 (struct whitespace-token token ())
