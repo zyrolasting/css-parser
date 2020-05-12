@@ -29,12 +29,12 @@
            #x0080)))
 
 (define (non-printable-code-point? ch)
-  (or (char=? LINE-TABULATION)
-      (char=? DELETE)
-      (and (char>=? NULL)
-           (char<=? BACKSPACE))
-      (and (char>=? SHIFT-OUT)
-           (char<=? INFORMATION-SEPARATOR-ONE))))
+  (or (char=? ch LINE-TABULATION)
+      (char=? ch DELETE)
+      (and (char>=? ch NULL)
+           (char<=? ch BACKSPACE))
+      (and (char>=? ch SHIFT-OUT)
+           (char<=? ch INFORMATION-SEPARATOR-ONE))))
 
 (define (name-code-point? ch)
   (and (char? ch)
