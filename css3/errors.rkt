@@ -1,7 +1,7 @@
 #lang racket/base
 
-(provide (struct-out exn:fail:css:parse)
-         (struct-out exn:fail:css:syntax)
+(provide (struct-out exn:fail:css3:parse)
+         (struct-out exn:fail:css3:syntax)
          make-css3-parse-error
          make-css3-syntax-error
          maybe-raise
@@ -11,8 +11,8 @@
 
 (require "tokenizer/tokens.rkt")
 
-(struct exn:fail:css:parse  exn:fail (line column))
-(struct exn:fail:css:syntax exn:fail (line column))
+(struct exn:fail:css3:parse  exn:fail (line column))
+(struct exn:fail:css3:syntax exn:fail (line column))
 
 (define strict? (make-parameter #t))
 
@@ -22,13 +22,13 @@
 
 (define (make-css3-parse-error in msg)
   (let-values ([(line col pos) (port-next-location in)])
-    (exn:fail:css:parse (format "(~a:~a) ~a" (or line "?") (or col "?") msg)
+    (exn:fail:css3:parse (format "(~a:~a) ~a" (or line "?") (or col "?") msg)
                         (current-continuation-marks)
                         line
                         col)))
 
 (define (make-css3-syntax-error tok msg)
-  (exn:fail:css:syntax msg
+  (exn:fail:css3:syntax msg
                        (current-continuation-marks)
                        (token-line tok)
                        (token-column tok)))

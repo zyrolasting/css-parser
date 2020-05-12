@@ -194,7 +194,7 @@
 
     (test-exn "Will complain about unexpected EOF."
               (λ (e)
-                (and (exn:fail:css:parse? e)
+                (and (exn:fail:css3:parse? e)
                      (string-contains? (string-downcase (exn-message e))
                                        "eof")))
               (λ ()

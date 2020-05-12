@@ -102,7 +102,7 @@
 
 (define (parse-rule in)
   (define tokens (normalize-argument in))
-  (with-handlers ([exn:fail:css:syntax? values])
+  (with-handlers ([exn:fail:css3:syntax? (λ (e) (if (strict?) (raise e) e))])
     (consume-leading-whitespace-tokens tokens)
 
     (define has-rule-location (get-next-token))
