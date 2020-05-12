@@ -346,7 +346,8 @@
                         (loop (cons succ digits)
                               (peek-char in)))
                       (apply string (reverse digits)))
-                  (apply string (reverse digits))))))
+                  (apply string (reverse digits))))
+              16))
 
            (when (char-whitespace? (peek-char/css in))
              (read-char/css in))
