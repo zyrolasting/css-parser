@@ -33,7 +33,7 @@ before_install:
 - export PATH="${RACKET_DIR}/bin:${PATH}" #install-racket.sh can't set for us
 
 install:
- - raco pkg install --auto --name css-parser
+ - raco pkg install --auto --name css3-syntax
 
 before_script:
 
@@ -41,9 +41,9 @@ before_script:
 # `raco pkg install --deps search-auto` to install any required
 # packages without it getting stuck on a confirmation prompt.
 script:
- - raco test -x -p css-parser
+ - raco test -x -p css3-syntax
 
 after_success:
- - raco setup --check-pkg-deps --pkgs css-parser
+ - raco setup --check-pkg-deps --pkgs css3-syntax
  - raco pkg install --auto cover cover-coveralls
  - raco cover -b -f coveralls -d $TRAVIS_BUILD_DIR/coverage .
