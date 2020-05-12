@@ -14,6 +14,7 @@
 ;=======================================================
 
 (define (tokenize in [out null])
+  (port-count-lines! in)
   (let ([next (get-next-token in)])
     (if (eof-token? next)
         (reverse (cons next out))
