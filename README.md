@@ -1,13 +1,14 @@
+[![](https://img.shields.io/badge/%E2%99%A5-Support%20Ethical%20Software-red)](https://sagegerard.com/subscribe.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This is a pure-Racket CSS parser that follows _[CSS Syntax Module
-Level 3][spec]_ (16 July 2019).
+Level 3][spec]_ (16 July 2019). Section references appear near
+relevant code, so `grep -r '4.3.13' .` will bring up the "Convert a
+string to a number" algorithm.
 
-The code is organized such that one module covers either one top-level
-section of the spec, or several subsections.  If a module covers
-several subsections, then they are typically related (e.g. number
-parsing).
+## Project status: WIP
 
-To seek out the implementation for some part of the spec, just search
-the codebase for its section number. `grep -r '4.3.13' .` will bring
-up the "Convert a string to a number" algorithm.
+- [x] Tokenizer
+- [ ] Parser
 
 [spec]: https://www.w3.org/TR/css-syntax-3/
