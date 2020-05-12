@@ -1,6 +1,8 @@
 #lang racket/base
 
-(require "tokenizer/tokens.rkt"
+(require racket/contract
+         racket/generator
+         "tokenizer/tokens.rkt"
          "tokenizer.rkt"
          "errors.rkt")
 
@@ -8,6 +10,8 @@
 ;=======================================================
 ; §5: Parse tree nodes and definitions
 ;=======================================================
+
+(define parser-entry-input/c (or/c generator? string? input-port?))
 
 (struct css-node (line col))
 (struct at-rule css-node (name prelude block))
@@ -62,37 +66,42 @@
 ; §5.3
 ;=======================================================
 
-(define (normalize-argument in)
+(define (normalize-argument in [id 'normalize-argument])
   (cond [(string? in)
          (tokenize (open-input-string in))]
         [(input-port? in)
          (tokenize in)]
-        [else in]))
+        [(generator? in)
+         in]
+        [else (raise-argument-error id
+                                    "A string, an input port with UTF-8 characters, or a generator."
+                                    in)]))
 
 
 ;=======================================================
 ; §5.3.2: Parse a stylesheet
 ;=======================================================
 
-(define (parse-stylesheet tokens)
+(define (parse-stylesheet in)
   (stylesheet (parameterize ([top-level? #t])
-                (consume-rule-list tokens))))
+                (consume-rule-list (normalize-argument in)))))
 
 
 ;=======================================================
 ; §5.3.3: Parse a list of rules
 ;=======================================================
 
-(define (parse-rule-list tokens)
+(define (parse-rule-list in)
   (parameterize ([top-level? #f])
-    (consume-rule-list tokens)))
+    (consume-rule-list (normalize-argument in))))
 
 
 ;=======================================================
 ; §5.3.4: Parse a rule
 ;=======================================================
 
-(define (parse-rule tokens)
+(define (parse-rule in)
+  (define tokens (normalize-argument in))
   (with-handlers ([exn:fail:css:syntax? values])
     (consume-leading-whitespace-tokens tokens)
 
@@ -120,7 +129,8 @@
 ; §5.3.5: Parse a declaration, not an at-rule
 ;=======================================================
 
-(define (parse-declaration tokens)
+(define (parse-declaration in)
+  (define tokens (normalize-argument in))
   (consume-leading-whitespace-tokens tokens)
   (cond [(not (ident-token? (get-next-token)))
          (make-css3-syntax-error (get-next-token) "Expected ident token")]
@@ -134,15 +144,16 @@
 ; §5.3.6: Parse a list of declarations (incl. at rules)
 ;=======================================================
 
-(define (parse-declarations tokens)
-  (consume-declaration-list tokens))
+(define (parse-declarations in)
+  (consume-declaration-list (normalize-argument in)))
 
 
 ;=======================================================
 ; §5.3.7: Parse a component value
 ;=======================================================
 
-(define (parse-component-value tokens [value #f])
+(define (parse-component-value in [value #f])
+  (define tokens (normalize-argument in))
   (consume-leading-whitespace-tokens tokens)
   (define next (get-next-token))
   (cond [(eof-token? next)
@@ -154,7 +165,8 @@
 ; §5.3.8: Parse list of component values
 ;=======================================================
 
-(define (parse-component-value-list tokens [out null])
+(define (parse-component-value-list in [out null])
+  (define tokens (normalize-argument in))
   (define next (consume-component-value tokens))
   (if (eof-token? next)
       (reverse out)
@@ -165,7 +177,8 @@
 ; §5.3.9: Parse comma-separated list of component values
 ;=======================================================
 
-(define (parse-comma-separated-component-value-list tokens [out null] [csv null])
+(define (parse-comma-separated-component-value-list in [out null] [csv null])
+  (define tokens (normalize-argument in))
   (define next (consume-component-value tokens))
   (cond [(eof-token? next)
          (reverse out)]
