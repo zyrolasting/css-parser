@@ -28,6 +28,14 @@
        (>= (char->integer ch)
            #x0080)))
 
+(define (non-printable-code-point? ch)
+  (or (char=? LINE-TABULATION)
+      (char=? DELETE)
+      (and (char>=? NULL)
+           (char<=? BACKSPACE))
+      (and (char>=? SHIFT-OUT)
+           (char<=? INFORMATION-SEPARATOR-ONE))))
+
 (define (name-code-point? ch)
   (and (char? ch)
        (name-start-code-point? ch)
