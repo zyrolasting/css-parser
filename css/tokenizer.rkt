@@ -41,38 +41,73 @@
         [(? QUOTATION-MARK) (on-string-start in)]
         [(? NUMBER-SIGN) (on-number-sign in)]
         [(? APOSTROPHE) (on-string-start in)]
-        [(? LEFT-PARENTHESIS) (l-paren-token)]
-        [(? RIGHT-PARENTHESIS) (r-paren-token)]
+        [(? LEFT-PARENTHESIS) (on-l-paren in)]
+        [(? RIGHT-PARENTHESIS) (on-r-paren in)]
         [(? PLUS-SIGN) (make-numeric-or-delim-token in)]
-        [(? COMMA) (comma-token)]
+        [(? COMMA) (on-comma in)]
         [(? HYPHEN-MINUS) (on-hyphen-minus in)]
         [(? FULL-STOP) (on-full-stop in)]
-        [(? COLON) (colon-token)]
-        [(? SEMICOLON) (semicolon-token)]
+        [(? COLON) (on-colon in)]
+        [(? SEMICOLON) (on-semicolon in)]
         [(? LESS-THAN-SIGN) (on-less-than in)]
         [(? COMMERCIAL-AT) (on-commercial-at in)]
-        [(? LEFT-SQUARE-BRACKET) (l-square-bracket-token)]
-        [(? RIGHT-SQUARE-BRACKET) (r-square-bracket-token)]
-        [(? LEFT-CURLY-BRACKET) (l-curly-bracket-token)]
-        [(? RIGHT-CURLY-BRACKET) (r-curly-bracket-token)]
+        [(? LEFT-SQUARE-BRACKET) (on-l-square-bracket in)]
+        [(? RIGHT-SQUARE-BRACKET) (on-r-square-bracket in)]
+        [(? LEFT-CURLY-BRACKET) (on-l-curly-bracket in)]
+        [(? RIGHT-CURLY-BRACKET) (on-r-curly-bracket in)]
         [(digit? next) (consume-numeric-token in)]
         [(name-start-code-point? next) (consume-ident-like-token in)]
         [else (delim-token next)]))
+
+
+(define (make-single-char-consumer tok)
+  (λ (in) (read-char/css in) (tok)))
+
+(define on-colon (make-single-char-consumer colon-token))
+(define on-semicolon (make-single-char-consumer semicolon-token))
+(define on-comma (make-single-char-consumer comma-token))
+(define on-l-paren (make-single-char-consumer l-paren-token))
+(define on-r-paren (make-single-char-consumer r-paren-token))
+(define on-l-square-bracket (make-single-char-consumer l-square-bracket-token))
+(define on-r-square-bracket (make-single-char-consumer r-square-bracket-token))
+(define on-l-curly-bracket (make-single-char-consumer l-curly-bracket-token))
+(define on-r-curly-bracket (make-single-char-consumer r-curly-bracket-token))
 
 (define (on-string-start in)
   (consume-string-token in (read-char in) null))
 
 (define (on-hyphen-minus in)
-  (void))
+  (cond [(starts-number? in)
+         (consume-numeric-token in)]
+
+        [(equal? (peek-char/css/multi in 2)
+                 (list HYPHEN-MINUS GREATER-THAN-SIGN))
+         (read-char in)
+         (read-char in)
+         (cdc-token)]
+
+        [(starts-identifier? in)
+         (consume-ident-like-token in)]
+
+        [else (delim-token (read-char in))]))
 
 (define (on-commercial-at in)
-  (void))
+  (if (starts-identifier? in)
+      (at-keyword-token (consume-name in))
+      (delim-token (read-char in))))
 
 (define (on-full-stop in)
-  (void))
+  (if (starts-number? in)
+      (consume-numeric-token in)
+      (delim-token (read-char in))))
 
 (define (on-less-than in)
-  (void))
+  (if (equal? (peek-char/css/multi in 3)
+              (list LESS-THAN-SIGN
+                    HYPHEN-MINUS
+                    HYPHEN-MINUS))
+      (cdo-token)
+      (delim-token (read-char in))))
 
 (define (on-number-sign in)
   (read-char in) ; Discard #
@@ -84,11 +119,14 @@
                   (consume-name in))
       (delim-token (read-char/css in))))
 
-(define (consume-whitespace-token in [next (peek-char/css in)])
-  (if (whitespace? next)
-      (consume-whitespace-token in (begin (read-char/css in)
-                                          (peek-char/css in)))
-      (whitespace-token)))
+(define (consume-whitespace in)
+  (when (whitespace? (peek-char/css in))
+    (read-char/css in)
+    (consume-whitespace in)))
+
+(define (consume-whitespace-token in)
+  (consume-whitespace in)
+  (whitespace-token))
 
 (define (make-numeric-or-delim-token in)
   (read-char in) ; Discard + or -
@@ -103,11 +141,11 @@
 
 (define (starts-comment? in)
   (equal? (peek-char/css/multi in 2)
-          '(#\u002F #\u002A)))
+          (list SOLIDUS ASTERISK)))
 
 (define (ends-comment? in)
   (equal? (peek-char/css/multi in 2)
-          '(#\u002A #\u002F)))
+          (list ASTERISK SOLIDUS)))
 
 (define (consume-comment in)
   (define eof-err (make-parse-error in "Unexpected EOF in comment."))
@@ -115,7 +153,7 @@
   (read-char in)
   (let loop ([next (peek-char/css in)])
     (cond [(eof-object? next)
-           (raise eof-err)]
+           (maybe-raise eof-err)]
           [(and (char=? next #\u002A)
                 (ends-comment? in))
            (read-char in)
@@ -174,7 +212,30 @@
 ;=======================================================
 
 (define (consume-ident-like-token in)
-  (void))
+  (define str (consume-name in))
+  (cond [(and (equal? "url" (string-downcase str))
+              (equal? (peek-char/css in) LEFT-PARENTHESIS))
+         (read-char/css in) ; Consume paren.
+
+         (let loop ()
+           (define next-two (peek-char/css/multi in 2))
+           (when (andmap whitespace? next-two)
+             (read-char/css in)
+             (loop)))
+
+         (define next-two (peek-string/css in 2))
+         (if (or (equal? next-two (string QUOTATION-MARK QUOTATION-MARK))
+                 (equal? next-two (string APOSTROPHE APOSTROPHE))
+                 (and (whitespace? (car next-two))
+                      (let ([-2nd (cadr next-two)])
+                        (or (equal? -2nd APOSTROPHE)
+                            (equal? -2nd QUOTATION-MARK)))))
+             (function-token str)
+             (consume-url-token in))]
+        [(equal? (peek-char/css in) LEFT-PARENTHESIS)
+         (read-char/css in)
+         (function-token str)]
+        [else (ident-token str)]))
 
 
 ;=======================================================
@@ -222,7 +283,40 @@
 ; ======================================================
 
 (define (consume-url-token in)
-  (void))
+  (define eof-err (make-parse-error in "Unexpected EOF when parsing URL."))
+  (define bad-url-err (make-parse-error in "Malformed URL."))
+
+  (consume-whitespace in)
+
+  (let loop ([next (peek-char/css in)]
+             [accum null])
+    (cond [(eof-object? next)
+           (maybe-raise eof-err)
+           (url-token (apply string (reverse accum)))]
+
+          [(equal? next RIGHT-PARENTHESIS)
+           (url-token (apply string (reverse accum)))]
+
+          [(whitespace? next)
+           (consume-whitespace in)
+           (loop (peek-char/css in) accum)]
+
+          [(or (non-printable-code-point? next)
+               (member next (list QUOTATION-MARK
+                                  APOSTROPHE
+                                  LEFT-PARENTHESIS)))
+           (maybe-raise (bad-url-err))
+           (consume-bad-url-remnants in)
+           (bad-url-token)]
+
+          [(equal? next REVERSE-SOLIDUS)
+           (if (valid-escape? in)
+               (loop (peek-char/css in) (cons (read-escaped in)
+                                              accum))
+               (begin (maybe-raise (bad-url-err))
+                      (consume-bad-url-remnants in)))]
+
+          [else (loop (peek-char/css in) (cons (read-char/css in) accum))])))
 
 
 ; ======================================================
@@ -238,14 +332,14 @@
            (define hex
              (string->number
               (let loop ([digits (list next)] [succ (peek-char in)])
-                (if (> (length digits) 6)
-                    (raise err)
-                    (if (hex-digit? succ)
-                        (begin
-                          (read-char in)
-                          (loop (cons succ digits)
-                                (peek-char in)))
-                        (apply string (reverse digits)))))))
+                (if (< (length digits) 6)
+                  (if (hex-digit? succ)
+                      (begin
+                        (read-char in)
+                        (loop (cons succ digits)
+                              (peek-char in)))
+                      (apply string (reverse digits)))
+                  (apply string (reverse digits))))))
 
            (when (char-whitespace? (peek-char/css in))
              (read-char/css in))
@@ -338,7 +432,7 @@
 (define (consume-number in)
   ; 1., plus utilities
   (define repr null)
-  (define type 'integer)
+  (define type "integer")
 
   (define (consume-char!)
     (set! repr (cons (read-char in) repr)))
@@ -366,7 +460,7 @@
              (digit? (cadr maybe-decimal-start)))
     (consume-char!)
     (consume-char!)
-    (set! type 'number)
+    (set! type "number")
     (consume-digits!))
 
   ; 5.
@@ -398,15 +492,15 @@
     (check-equal? type expected-type)
 
     (check-true
-     (if (eq? type 'number)
+     (if (equal? type "number")
          (< (abs (exact->inexact (- val expected-value))) 0.001)
          (equal? val expected-value))))
 
   (test-case "§4.3.12"
-    (check-consume-number "100" 'integer 100)
-    (check-consume-number "100.0" 'number 100)
-    (check-consume-number "-100.91" 'number -100.91)
-    (check-consume-number "9.7e-1" 'number #i9.7e-1)))
+    (check-consume-number "100" "integer" 100)
+    (check-consume-number "100.0" "number" 100)
+    (check-consume-number "-100.91" "number" -100.91)
+    (check-consume-number "9.7e-1" "number" #i9.7e-1)))
 
 
 ;=======================================================
@@ -483,4 +577,13 @@
 ; ======================================================
 
 (define (consume-bad-url-remnants in)
-  (void))
+  (define next (peek-char/css in))
+  (cond [(or (eof-object? next)
+             (equal? next RIGHT-PARENTHESIS))
+         (void)]
+
+        [(valid-escape? in)
+         (read-escaped in)
+         (consume-bad-url-remnants in)]
+
+        [else (consume-bad-url-remnants in)]))
