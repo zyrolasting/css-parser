@@ -90,7 +90,7 @@
         [(? RIGHT-CURLY-BRACKET) (on-r-curly-bracket in)]
         [(digit? next) (consume-numeric-token in)]
         [(name-start-code-point? next) (consume-ident-like-token in)]
-        [else (make-delim-token (read-char/css in))]))
+        [else (make-delim-token (string (read-char/css in)))]))
 
 (define (make-single-char-consumer tok)
   (λ (in)
@@ -123,17 +123,17 @@
         [(starts-identifier? in)
          (consume-ident-like-token in)]
 
-        [else (make-delim-token (read-char in))]))
+        [else (make-delim-token (string (read-char in)))]))
 
 (define (on-commercial-at in)
   (if (starts-identifier? in)
       (make-at-keyword-token (consume-name in))
-      (make-delim-token (read-char in))))
+      (make-delim-token (string (read-char in)))))
 
 (define (on-full-stop in)
   (if (starts-number? in)
       (consume-numeric-token in)
-      (make-delim-token (read-char in))))
+      (make-delim-token (string (read-char in)))))
 
 (define (on-less-than in)
   (if (equal? (peek-char/css/multi in 3)
@@ -141,7 +141,7 @@
                     HYPHEN-MINUS
                     HYPHEN-MINUS))
       (make-cdo-token)
-      (make-delim-token (read-char in))))
+      (make-delim-token (string (read-char in)))))
 
 (define (on-number-sign in)
   (read-char in) ; Discard #
@@ -151,7 +151,7 @@
                       "id"
                       "unrestricted")
                   (consume-name in))
-      (make-delim-token (read-char/css in))))
+      (make-delim-token (string (read-char/css in)))))
 
 (define (consume-whitespace in)
   (when (whitespace? (peek-char/css in))
@@ -166,7 +166,7 @@
   (read-char in) ; Discard + or -
   (if (starts-number? in)
       (consume-numeric-token in)
-      (make-delim-token (peek-char/css in))))
+      (make-delim-token (string (peek-char/css in)))))
 
 
 ;=======================================================
