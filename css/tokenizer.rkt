@@ -7,21 +7,22 @@
          "exn.rkt"
          "tokenizer/code-points.rkt"
          "tokenizer/terms.rkt"
-         "tokenizer/tokens.rkt")
+         "tokenizer/tokens.rkt"
+         racket/generator)
+
 
 ;=======================================================
 ; §4: Tokenization
 ;=======================================================
 
-(define (tokenize in [out null])
-  (port-count-lines! in)
-  (let ([next (get-next-token in)])
-    (if (eof-token? next)
-        (reverse (cons next out))
-        (tokenize in
-                  (if (void? next)
-                      out
-                      (cons next out))))))
+(define (tokenize in)
+  (sequence->stream
+   (in-generator
+    (let loop ()
+      (define next (get-next-token in))
+      (yield next)
+      (unless (eof-token? next)
+        (loop))))))
 
 
 ;=======================================================
