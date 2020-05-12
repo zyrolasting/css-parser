@@ -58,7 +58,7 @@
         [(? RIGHT-CURLY-BRACKET) (on-r-curly-bracket in)]
         [(digit? next) (consume-numeric-token in)]
         [(name-start-code-point? next) (consume-ident-like-token in)]
-        [else (delim-token next)]))
+        [else (delim-token (read-char/css in))]))
 
 
 (define (make-single-char-consumer tok)
