@@ -3,7 +3,7 @@
 
 (define version "0.0")
 
-(define pkg-desc "Implementation of W3C's CSS Syntax Module (Level 3)")
+(define pkg-desc "Implementations for W3C CSS Modules")
 (define pkg-authors '(sage))
 
 (define deps '("base"))
