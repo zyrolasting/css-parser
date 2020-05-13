@@ -42,6 +42,10 @@
   (for ([tok (tokenize (current-input-port))])
     (writeln tok)))
 
+(module+ test
+  (require racket/string
+           rackunit))
+
 
 ;=======================================================
 ; §4: Tokenization
@@ -199,9 +203,6 @@
 
 
 (module+ test
-  (require racket/string
-           rackunit)
-
   (test-case "Can see comment endpoints"
     (check-pred starts-comment? (open-input-string (string SOLIDUS ASTERISK)))
     (check-pred ends-comment?   (open-input-string (string ASTERISK SOLIDUS))))
