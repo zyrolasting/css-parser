@@ -100,20 +100,20 @@ Parse a list of comma-separated component values according to @sl{5.3.9}.
 
 @subsection{Parsed Node Definitions}
 
-@defstruct*[css-node ([line (or/c #f exact-nonnegative-integer?)]
+@defstruct*[css3-syntax-parse-node ([line (or/c #f exact-nonnegative-integer?)]
                      [column (or/c #f exact-nonnegative-integer?)])]{
 The superstructure for all parse output.
 
-Each @racket[css-node] substructure type has a meaning derived from
+Each @racket[css3-syntax-parse-node] substructure type has a meaning derived from
 @sl{5}.
 
 The line and column match the line and column information for the
-@italic{first} token used to produce a @racket[css-node] instance.
+@italic{first} token used to produce a @racket[css3-syntax-parse-node] instance.
 }
 
-@defstruct*[(at-rule css-node)
+@defstruct*[(at-rule css3-syntax-parse-node)
            ([name string?]
-            [prelude (listof css-node?)]
+            [prelude (listof css3-syntax-parse-node?)]
             [block (or/c simple-block? #f)])]{
 Represents an at-rule like @litchar|{@import}| or @litchar|{@media}|.
 
@@ -121,23 +121,23 @@ The @racket[preamble] captures nodes before any defined
 @racket[block]. The @racket[block] itself is optional.
 }
 
-@defstruct*[(qualified-rule css-node)
-           ([prelude (listof css-node?)]
+@defstruct*[(qualified-rule css3-syntax-parse-node)
+           ([prelude (listof css3-syntax-parse-node?)]
             [block simple-block?])]{
 Represents a qualified rule, which is the general form used to apply
 styles to a document.
 }
 
-@defstruct*[(declaration css-node) ([name string?] [value css-node?] [important boolean?])]{
+@defstruct*[(declaration css3-syntax-parse-node) ([name string?] [value css3-syntax-parse-node?] [important boolean?])]{
 Represents an individual style declaration, optionally marked
 @racket[important].
 }
 
-@defstruct*[(simple-block css-node)
+@defstruct*[(simple-block css3-syntax-parse-node)
            ([token (or/c l-curly-bracket-token?
                          l-square-bracket-token?
                          l-paren-token?)]
-            [value (listof css-node?)])]{
+            [value (listof css3-syntax-parse-node?)])]{
 Represents a block of nodes with an associated @litchar|{(}|,
 @litchar|{{}|, or @litchar|{[}| @racket[token] that represents the
 opening brace.
@@ -145,12 +145,18 @@ opening brace.
 The @racket[value] is a list of nodes contained within the block.
 }
 
-@defstruct*[(function css-node) ([name string?] [value (listof css-node?)])]{
+@defstruct*[(function css3-syntax-parse-node) ([name string?] [value (listof css3-syntax-parse-node?)])]{
 Represents a function call like @litchar{box-shadow(2px 2px 2px black)}.
 }
 
-@defstruct*[(stylesheet css-node) ([rules (listof (or/c qualified-rule? at-rule?))])]{
+@defstruct*[(stylesheet css3-syntax-parse-node) ([rules (listof (or/c qualified-rule? at-rule?))])]{
 Represents a list of qualified rules and at-rules.
+
+@bold{Be warned that this is not equivalent to a CSS stylesheet object
+as defined in @sl{9}.} This parser output follows @sl{5}, which only
+organizes declarations and component values in blocks and rules.
+The meaning and grammar of this object is @italic{entirely agnostic},
+and does not understand CSS-specific concerns like selectors.
 }
 
 @subsection{Parser Utilities}
@@ -296,7 +302,7 @@ comes from a @racket[token] (during parsing) or
 @racket[port-next-location] (during tokenization).
 
 A @racket[exn:fail:css3:syntax] instance represents a failure to
-construct a @racket[css-node] out of individually valid tokens (not
+construct a @racket[css3-syntax-parse-node] out of individually valid tokens (not
 characters). A @racket[token] that starts a form donates its source
 location data to a @racket[exn:fail:css3:syntax] instance.
 }

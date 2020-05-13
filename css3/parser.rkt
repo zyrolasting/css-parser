@@ -16,17 +16,17 @@
 (provide (contract-out [component-value? predicate/c]
                        [preserved-token? predicate/c]
                        [parser-entry-input/c contract?])
-         (struct-out css-node)
+         (struct-out css3-syntax-parse-node)
          (struct-out stylesheet))
 
 (define-syntax-rule (parse-node id (fields ...))
   (begin (provide (struct-out id))
-         (struct id css-node (fields ...))))
+         (struct id css3-syntax-parse-node (fields ...))))
 
 (define-syntax-rule (provide-entry-point id rng)
   (provide (contract-out [id (-> parser-entry-input/c rng)])))
 
-(struct css-node (line col))
+(struct css3-syntax-parse-node (line col))
 (parse-node stylesheet (rules))
 (parse-node at-rule (name prelude block))
 (parse-node qualified-rule (prelude block))
@@ -105,7 +105,7 @@
  (contract-out
   [parse-as (-> parser-entry-input/c
                 (-> (listof component-value?))
-                (or/c #f css-node? stylesheet?))]))
+                (or/c #f css3-syntax-parse-node? stylesheet?))]))
 
 ; Cheat by using a callback.
 (define (parse-as in ?)
