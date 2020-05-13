@@ -175,6 +175,29 @@ as defined in @sl{3.2}. If you pass an input port, this library assumes
 that the port produces UTF-8 encoded characters.
 }
 
+@defproc[(component-value? [v any/c]) boolean?]{
+Checks if the given value complies with the @bold{component value}
+definition in @sl{5}.
+}
+
+@defproc[(preserved-token? [v any/c]) boolean?]{
+Checks if the given value complies with the @bold{preserved token}
+definition in @sl{5}.
+}
+
+@margin-note{@sl{5.3.1}'s algorithm is supposed to accept a CSS
+grammar specification or term. However, that specification/term has an
+"unspecified structure." In a world with @racketmodname[racket/match],
+it seems that you would be better off using that in @racket[match?]
+instead of whatever I'd make up.}
+@defproc[(parse-as [in parser-entry-input/c]
+                   [match? (-> (listof component-value?) any/c)]) any/c]{
+Parses the given input according to @sl{5.3.1}.
+
+Returns @racket[(and (match? L) L)], where @racket[L] is
+@racket[(parse-component-value-list L)].
+}
+
 @defproc[(parse-stylesheet [in parser-entry-input/c]) stylesheet?]{
 Parses a @racket[stylesheet] according to @sl{5.3.2}, where
 contained rules are considered top-level.

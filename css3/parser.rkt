@@ -11,7 +11,9 @@
 ; §5: Parse tree nodes and definitions
 ;=======================================================
 
-(provide parser-entry-input/c
+(provide (contract-out [component-value? predicate/c]
+                       [preserved-token? predicate/c]
+                       [parser-entry-input/c contract?])
          (struct-out css-node)
          (struct-out stylesheet))
 
@@ -92,6 +94,22 @@
   (thread-cell-set! next-token (tokens))
   tokens)
 
+
+;=======================================================
+; §5.3.1: Parse something according to a CSS grammar
+;=======================================================
+
+(provide
+ (contract-out
+  [parse-as (-> parser-entry-input/c
+                (-> (listof component-value?))
+                (or/c #f css-node? stylesheet?))]))
+
+; Cheat by using a callback.
+(define (parse-as in ?)
+  (let ([comp-vals (parse-component-value-list in)])
+    (and (? comp-vals)
+         comp-vals)))
 
 ;=======================================================
 ; §5.3.2: Parse a stylesheet
