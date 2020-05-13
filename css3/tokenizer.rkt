@@ -394,8 +394,10 @@
 
 (define valid-escape?
   (case-lambda
+    [() #f]
     [(in) (apply valid-escape?
                  (peek-char/css/multi in 2))]
+    [(next) #f]
     [(prev next)
      (and (char=? prev REVERSE-SOLIDUS)
           (not (char=? next LINE-FEED)))]))
