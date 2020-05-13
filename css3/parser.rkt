@@ -79,15 +79,18 @@
 ;=======================================================
 
 (define (normalize-argument in [id 'normalize-argument])
-  (cond [(string? in)
-         (tokenize (open-input-string in))]
-        [(input-port? in)
-         (tokenize in)]
-        [(generator? in)
-         in]
-        [else (raise-argument-error id
-                                    "A string, an input port with UTF-8 characters, or a generator."
-                                    in)]))
+  (define tokens
+    (cond [(string? in)
+           (tokenize (open-input-string in))]
+          [(input-port? in)
+           (tokenize in)]
+          [(generator? in)
+           in]
+          [else (raise-argument-error id
+                                      "A string, an input port with UTF-8 characters, or a generator."
+                                      in)]))
+  (thread-cell-set! next-token (tokens))
+  tokens)
 
 
 ;=======================================================
