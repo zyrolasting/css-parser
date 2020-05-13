@@ -6,6 +6,8 @@
          "tokenizer.rkt"
          "errors.rkt")
 
+(module+ test
+  (require rackunit))
 
 ;=======================================================
 ; §5: Parse tree nodes and definitions
