@@ -181,7 +181,7 @@
   (consume-leading-whitespace-tokens tokens)
   (define next (get-next-token))
   (cond [(eof-token? next)
-         (or value (make-css3-syntax-error next "Unexpected EOF when parsing component value"))]
+         (or value (maybe-raise-css3-syntax-error next "Unexpected EOF when parsing component value"))]
         [else (parse-component-value tokens (consume-component-value tokens))]))
 
 
