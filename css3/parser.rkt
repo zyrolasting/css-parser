@@ -133,7 +133,7 @@
                                             "Unexpected EOF when parsing rule"))]
             [(at-keyword-token? (get-next-token))
              (consume-at-rule tokens)]
-            [else (consume-qualified-rule)]))
+            [else (consume-qualified-rule tokens)]))
 
     (unless rule
       (maybe-raise-css3-syntax-error has-rule-location
