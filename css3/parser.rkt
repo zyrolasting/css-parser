@@ -446,13 +446,19 @@
 (define (consume-function tokens)
   (define starting-token (get-current-token))
   (define name (get-token-value starting-token))
+  (define (build v)
+    (function (token-line starting-token)
+              (token-column starting-token)
+              name
+              (reverse v)))
+
   (let loop ([value null])
     (define in-body (consume-next-token tokens))
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in function")
-           (function name (reverse value))]
+           (build value)]
           [(r-paren-token? in-body)
-           (function name (reverse value))]
+           (build value)]
           [else (reconsume-current-token)
                 (loop (cons (consume-component-value tokens)
                             value))])))
