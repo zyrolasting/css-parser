@@ -36,7 +36,7 @@
 (define top-level? (make-parameter #f))
 
 (define (component-value? v)
-  (or (component-value? v)
+  (or (preserved-token? v)
       (simple-block? v)
       (function? v)))
 
