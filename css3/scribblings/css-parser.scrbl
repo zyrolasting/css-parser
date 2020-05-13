@@ -158,7 +158,7 @@ are, however, useful for deriving source location information and
 writing custom parsers.
 }
 
-@section{Parsing}
+@section{Parser}
 @defmodule[css3/parser]
 
 This module provides the parser entry point procedures as defined in
