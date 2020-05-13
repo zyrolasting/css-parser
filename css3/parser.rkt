@@ -436,9 +436,9 @@
     (define in-body (consume-next-token tokens))
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in simple block")
-           (build (reverse value))]
+           (build value)]
           [(ending-token? in-body)
-           (build (reverse value))]
+           (build value)]
           [else (reconsume-current-token)
                 (loop (cons (consume-component-value tokens)
                             value))])))
