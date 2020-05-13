@@ -57,6 +57,7 @@
 ; §5.2
 ;=======================================================
 
+; Thread cells make reading from token sequences thread-safe.
 (define current-token (make-thread-cell #f))
 (define next-token (make-thread-cell #f))
 (define reconsume? (make-thread-cell #f))
