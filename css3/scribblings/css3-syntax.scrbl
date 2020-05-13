@@ -85,15 +85,15 @@ The spec warns that this algorithm may output at-rules, despite the
 name.
 }
 
-@defproc[(parse-component-value [in parser-entry-input/c]) ...]{
+@defproc[(parse-component-value [in parser-entry-input/c]) component-value?]{
 Parse a component value according to @sl{5.3.7}.
 }
 
-@defproc[(parse-component-value-list [in parser-entry-input/c]) (listof ...)]{
+@defproc[(parse-component-value-list [in parser-entry-input/c]) (listof component-value?)]{
 Parse a list of component values according to @sl{5.3.8}.
 }
 
-@defproc[(parse-comma-separated-component-value-list [in parser-entry-input/c]) (listof ...)]{
+@defproc[(parse-comma-separated-component-value-list [in parser-entry-input/c]) (listof component-value?)]{
 Parse a list of comma-separated component values according to @sl{5.3.9}.
 }
 
