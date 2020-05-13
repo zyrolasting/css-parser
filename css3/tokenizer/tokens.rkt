@@ -57,14 +57,14 @@
 
 (define (get-token-value t)
   (and (token? t)
-       (cond [(at-keyword-token? (at-keyword-token-value t))]
-             [(delim-token? (delim-token-value t))]
-             [(dimension-token? (dimension-token-value t))]
-             [(function-token? (function-token-value t))]
-             [(hash-token? (hash-token-value t))]
-             [(ident-token? (ident-token-value t))]
-             [(number-token? (number-token-value t))]
-             [(percentage-token? (percentage-token-value t))]
-             [(string-token? (string-token-value t))]
-             [(url-token? (url-token-value t))]
+       (cond [(at-keyword-token? t) (at-keyword-token-value t)]
+             [(delim-token? t) (delim-token-value t)]
+             [(dimension-token? t) (dimension-token-value t)]
+             [(function-token? t) (function-token-value t)]
+             [(hash-token? t) (hash-token-value t)]
+             [(ident-token? t) (ident-token-value t)]
+             [(number-token? t) (number-token-value t)]
+             [(percentage-token? t) (percentage-token-value t)]
+             [(string-token? t) (string-token-value t)]
+             [(url-token? t) (url-token-value t)]
              [else #f])))
