@@ -23,8 +23,8 @@
   (begin (provide (struct-out id))
          (struct id css-node (fields ...))))
 
-(define-syntax-rule (provide-entry-point id)
-  (provide (contract-out [id parser-entry-point/c])))
+(define-syntax-rule (provide-entry-point id rng)
+  (provide (contract-out [id (-> parser-entry-input/c rng)])))
 
 (struct css-node (line col))
 (struct stylesheet (rules))
@@ -35,7 +35,6 @@
 (parse-node function (name value))
 
 (define parser-entry-input/c (or/c generator? string? input-port?))
-(define parser-entry-point/c (-> parser-entry-input/c css-node?))
 
 (define top-level? (make-parameter #f))
 
@@ -118,7 +117,7 @@
 ; §5.3.2: Parse a stylesheet
 ;=======================================================
 
-(provide-entry-point parse-stylesheet)
+(provide-entry-point parse-stylesheet stylesheet?)
 
 (define (parse-stylesheet in)
   (stylesheet (parameterize ([top-level? #t])
@@ -129,7 +128,7 @@
 ; §5.3.3: Parse a list of rules
 ;=======================================================
 
-(provide-entry-point parse-rule-list)
+(provide-entry-point parse-rule-list (listof (or/c qualified-rule? at-rule?)))
 
 (define (parse-rule-list in)
   (parameterize ([top-level? #f])
@@ -140,7 +139,7 @@
 ; §5.3.4: Parse a rule
 ;=======================================================
 
-(provide-entry-point parse-rule)
+(provide-entry-point parse-rule (or/c qualified-rule? at-rule?))
 
 (define (parse-rule in)
   (define tokens (normalize-argument in))
@@ -171,7 +170,7 @@
 ; §5.3.5: Parse a declaration, not an at-rule
 ;=======================================================
 
-(provide-entry-point parse-declaration)
+(provide-entry-point parse-declaration declaration?)
 
 (define (parse-declaration in)
   (define tokens (normalize-argument in))
@@ -188,7 +187,7 @@
 ; §5.3.6: Parse a list of declarations (incl. at rules)
 ;=======================================================
 
-(provide-entry-point parse-declaration-list)
+(provide-entry-point parse-declaration-list (listof (or/c declaration? at-rule?)))
 
 (define (parse-declaration-list in)
   (consume-declaration-list (normalize-argument in)))
@@ -198,7 +197,7 @@
 ; §5.3.7: Parse a component value
 ;=======================================================
 
-(provide-entry-point parse-component-value)
+(provide-entry-point parse-component-value component-value?)
 
 (define (parse-component-value in [value #f])
   (define tokens (normalize-argument in))
@@ -213,7 +212,7 @@
 ; §5.3.8: Parse list of component values
 ;=======================================================
 
-(provide-entry-point parse-component-value-list)
+(provide-entry-point parse-component-value-list (listof component-value?))
 
 (define (parse-component-value-list in [out null])
   (define tokens (normalize-argument in))
@@ -227,7 +226,7 @@
 ; §5.3.9: Parse comma-separated list of component values
 ;=======================================================
 
-(provide-entry-point parse-comma-separated-component-value-list)
+(provide-entry-point parse-comma-separated-component-value-list (listof component-value?))
 
 (define (parse-comma-separated-component-value-list in [out null] [csv null])
   (define tokens (normalize-argument in))
