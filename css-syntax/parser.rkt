@@ -61,6 +61,11 @@
 (define next-token (make-thread-cell #f))
 (define reconsume? (make-thread-cell #f))
 
+(define (reset-token-state!)
+  (thread-cell-set! next-token #f)
+  (thread-cell-set! current-token #f)
+  (thread-cell-set! reconsume? #f))
+
 (define (consume-next-token gen)
   (if (thread-cell-ref reconsume?)
       (thread-cell-set! reconsume? #f)
@@ -76,6 +81,22 @@
 
 (define (reconsume-current-token)
   (thread-cell-set! reconsume? #t))
+
+(module+ test
+  (test-case "consume-next-token"
+    (reset-token-state!)
+    (check-eq? (consume-next-token (λ () 'a)) #f)
+    (check-eq? (get-next-token) 'a)
+    (check-eq? (consume-next-token (λ () 'b)) 'a)
+    (check-eq? (get-next-token) 'b))
+
+  (test-case "reconsume the current input token"
+    (reset-token-state!)
+    (check-eq? (consume-next-token (λ () 'a)) #f)
+    (check-eq? (get-next-token) 'a)
+    (reconsume-current-token)
+    (check-eq? (consume-next-token (λ () 'b)) #f)
+    (check-eq? (get-next-token) 'a)))
 
 
 ;=======================================================
