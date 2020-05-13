@@ -286,9 +286,12 @@
 (define (consume-qualified-rule tokens)
   (define start-tok (get-next-token))
 
-  (define-values (line col)
-    (values (token-line start-tok)
-            (token-column start-tok)))
+  (define (build prelude v)
+    (qualified-rule
+     (token-line start-tok)
+     (token-column start-tok)
+     (reverse prelude)
+     v))
 
   (let loop ([prelude null])
     (define current (consume-next-token tokens))
@@ -298,14 +301,10 @@
             start-tok)
            #f]
           [(l-curly-bracket-token? current)
-           (qualified-rule line col
-                           prelude
-                           (consume-simple-block tokens))]
+           (build prelude (consume-simple-block tokens))]
           [(and (simple-block? current)
                 (l-curly-bracket-token? (simple-block-token current)))
-           (qualified-rule line col
-                           prelude
-                           current)]
+           (build prelude current)]
           [else (reconsume-current-token)
                 (loop (cons (consume-component-value tokens) prelude))])))
 
