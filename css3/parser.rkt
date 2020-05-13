@@ -248,7 +248,7 @@
 ;=======================================================
 
 (define (consume-at-rule tokens)
-  (consume-next-token)
+  (consume-next-token tokens)
 
   (define name (get-token-value (get-current-token)))
 
@@ -260,7 +260,7 @@
              block))
 
   (let loop ([prelude null])
-    (consume-next-token)
+    (consume-next-token tokens)
     (define current (get-current-token))
     (cond [(semicolon-token? current)
            (build current prelude #f)]
@@ -375,7 +375,7 @@
        (let loop ([wip null])
          (if (eof-token? (get-next-token))
              (trim-ws wip)
-             (loop (cons (consume-next-token) wip)))))
+             (loop (cons (consume-next-token tokens) wip)))))
 
     (define-values (important? final-values)
       (let* ([end (car raw-value)]
@@ -400,7 +400,7 @@
 ;=======================================================
 
 (define (consume-component-value tokens)
-  (define current (consume-next-token))
+  (define current (consume-next-token tokens))
   (cond [(or (l-curly-bracket-token? current)
              (l-square-bracket-token? current)
              (l-paren-token? current))
@@ -425,7 +425,7 @@
            r-paren-token?]))
 
   (let loop ([value null])
-    (define in-body (consume-next-token))
+    (define in-body (consume-next-token tokens))
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in simple block")
            (simple-block starting-token (reverse value))]
@@ -444,7 +444,7 @@
   (define starting-token (get-current-token))
   (define name (get-token-value starting-token))
   (let loop ([value null])
-    (define in-body (consume-next-token))
+    (define in-body (consume-next-token tokens))
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in function")
            (function name (reverse value))]
