@@ -149,7 +149,7 @@ The @racket[value] is a list of nodes contained within the block.
 Represents a function call like @litchar{box-shadow(2px 2px 2px black)}.
 }
 
-@defstruct*[stylesheet ([rules (listof (or/c qualified-rule? at-rule?))])]{
+@defstruct*[(stylesheet css-node) ([rules (listof (or/c qualified-rule? at-rule?))])]{
 Represents a list of qualified rules and at-rules.
 }
 

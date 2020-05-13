@@ -27,7 +27,7 @@
   (provide (contract-out [id (-> parser-entry-input/c rng)])))
 
 (struct css-node (line col))
-(struct stylesheet (rules))
+(parse-node stylesheet (rules))
 (parse-node at-rule (name prelude block))
 (parse-node qualified-rule (prelude block))
 (parse-node declaration (name value important))
@@ -120,7 +120,8 @@
 (provide-entry-point parse-stylesheet stylesheet?)
 
 (define (parse-stylesheet in)
-  (stylesheet (parameterize ([top-level? #t])
+  (stylesheet #f #f
+              (parameterize ([top-level? #t])
                 (consume-rule-list (normalize-argument in)))))
 
 
