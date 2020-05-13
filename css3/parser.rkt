@@ -409,7 +409,7 @@
              (l-paren-token? current))
          (consume-simple-block tokens)]
         [(function-token? current)
-         (consume-function current)]
+         (consume-function tokens)]
         [else current]))
 
 
