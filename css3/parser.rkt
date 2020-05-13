@@ -451,7 +451,7 @@
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in function")
            (function name (reverse value))]
-          [(l-paren-token? in-body)
+          [(r-paren-token? in-body)
            (function name (reverse value))]
           [else (reconsume-current-token)
                 (loop (cons (consume-component-value tokens)
