@@ -9,7 +9,7 @@ racket/contract
 racket/generator]
 "toc.rkt"]
 
-@title{CSS3 Parser}
+@title{W3C's CSS Syntax Module (Level 3)}
 @author{Sage Gerard}
 
 This package provides a CSS parser and tokenizer as defined in
