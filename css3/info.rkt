@@ -1,2 +1,2 @@
 #lang info
-(define scribblings '(("scribblings/css-parser.scrbl" ())))
+(define scribblings '(("scribblings/css-parser.scrbl" (multi-page))))
