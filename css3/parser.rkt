@@ -427,13 +427,19 @@
           [(l-paren-token? starting-token)
            r-paren-token?]))
 
+  (define (build v)
+    (simple-block (token-line starting-token)
+                  (token-column starting-token)
+                  starting-token
+                  (reverse v)))
+
   (let loop ([value null])
     (define in-body (consume-next-token tokens))
     (cond [(eof-token? in-body)
            (maybe-raise-css3-syntax-error starting-token "Unexpected EOF in simple block")
-           (simple-block starting-token (reverse value))]
+           (build (reverse value))]
           [(ending-token? in-body)
-           (simple-block starting-token (reverse value))]
+           (build (reverse value))]
           [else (reconsume-current-token)
                 (loop (cons (consume-component-value tokens)
                             value))])))
