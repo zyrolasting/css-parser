@@ -13,8 +13,8 @@ racket/generator]
 @author{Sage Gerard}
 
 This package provides a CSS parser and tokenizer as defined in
-@hyperlink[spec-url]{CSS Syntax Module Level 3}, or the
-“spec”. The source code and this manual both reference specific
+@hyperlink[spec-url]{CSS Syntax Module Level 3} (the
+“spec”). The source code and this manual both reference specific
 sections when relevant like so: @sl{4.1}.
 
 The current implementation follows the 16 July 2019 version of the
