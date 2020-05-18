@@ -160,11 +160,11 @@ and does not understand CSS-specific concerns like selectors.
 }
 
 @subsection{Parser Utilities}
-@defthing[parser-entry-input/c (sequence/c (or/c char? token?))]{
+@defthing[parser-entry-input/c (or/c string? input-port? (-> (or/c char? token?)))]{
 This contract captures a parser entry point's argument as defined in
 @sl{5.3}. Each procedure defined by this module will first try to
 transform its sole argument into a token stream using
-@racket[tokenize], if the argument does not already act as one.
+@racket[tokenize] if necessary.
 
 Currently, this library does @italic{not} decode input byte streams
 as defined in @sl{3.2}. If you pass an input port, this library assumes
