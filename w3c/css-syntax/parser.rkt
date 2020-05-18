@@ -34,7 +34,7 @@
 (parse-node simple-block (token value))
 (parse-node function (name value))
 
-(define parser-entry-input/c (or/c generator? string? input-port?))
+(define parser-entry-input/c (sequence/c (or/c char? token?)))
 
 (define top-level? (make-parameter #f))
 
@@ -510,6 +510,10 @@
                 (loop (cons (consume-component-value tokens)
                             value))])))
 
+
+(module+ test
+  (test-case "consume-function"
+    (define tokens ())))
 
 ;=======================================================
 ; Extras

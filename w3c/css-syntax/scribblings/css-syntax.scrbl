@@ -160,7 +160,7 @@ and does not understand CSS-specific concerns like selectors.
 }
 
 @subsection{Parser Utilities}
-@defthing[parser-entry-input/c (or/c generator? string? input-port?)]{
+@defthing[parser-entry-input/c (sequence/c (or/c char? token?))]{
 This contract captures a parser entry point's argument as defined in
 @sl{5.3}. Each procedure defined by this module will first try to
 transform its sole argument into a token stream using

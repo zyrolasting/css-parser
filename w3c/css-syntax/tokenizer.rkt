@@ -52,12 +52,7 @@
 ;=======================================================
 
 (define (tokenize in)
-  (generator ()
-   (let loop ([next (get-next-token in)])
-     (yield next)
-     (loop (if (eof-token? next)
-               next
-               (get-next-token in))))))
+  (in-producer (λ () (get-next-token in)) eof-token?))
 
 ;=======================================================
 ; §4.3.1: Consume a token
