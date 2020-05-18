@@ -10,6 +10,9 @@ repository.
 Any non-standard or implementation-specific behaviors are documented
 in the Scribble manual(s) for each collection.
 
+This project is not endorsed by the W3C.
+
+
 ## Navigating the Code
 The code ships as a multi-collection package. Each collection
 corresponds to a W3C specification module (not to be confused with
