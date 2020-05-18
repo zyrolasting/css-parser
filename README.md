@@ -1,12 +1,11 @@
 [![](https://img.shields.io/badge/%E2%99%A5-Support%20Ethical%20Software-red)](https://sagegerard.com/subscribe.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This project holds pure Racket implementations of CSS specifications.
-**This is not to say it is complete, but anything that makes it here
-is useable.** Any code here aims to faithfully comply with a related
-CSS specification from the W3C. Given enough time and attention that I
-certainly won't have alone, one can piece together a CSS engine from
-the parts in this repository.
+This project holds pure Racket implementations of W3C's CSS
+specifications. It is not complete, but anything that makes it here is
+useable. Given enough time and attention that I certainly won't have
+alone, one can piece together a CSS engine from the parts in this
+repository.
 
 Any non-standard or implementation-specific behaviors are documented
 in the Scribble manual(s) for each collection.
