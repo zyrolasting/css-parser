@@ -1,9 +1,9 @@
 #lang scribble/manual
 
 @require[@for-label[
-css3/parser
-css3/tokenizer
-css3/errors
+w3c/css-syntax/parser
+w3c/css-syntax/tokenizer
+w3c/css-syntax/errors
 racket/base
 racket/contract
 racket/generator]
@@ -34,7 +34,7 @@ liberties:
 
 
 @section{Parser}
-@defmodule[css3/parser]
+@defmodule[w3c/css-syntax/parser]
 
 This module provides the parser entry point procedures as defined in
 @sl{5.3}, the struct definitions representing parsed CSS3 code, and
@@ -183,7 +183,7 @@ definition in @sl{5}.
 
 
 @section{Tokenizer}
-@defmodule[css3/tokenizer]
+@defmodule[w3c/css-syntax/tokenizer]
 
 The tokenizer consumes characters from an input port to produce tokens
 as defined in @secref{token-definitions}.
@@ -265,7 +265,7 @@ writing custom parsers.
 
 
 @section{Errors}
-@defmodule[css3/errors]
+@defmodule[w3c/css-syntax/errors]
 
 The spec defines error recovery rules for user agents so that they can
 be compatible with adjusted CSS grammars. This module defines global

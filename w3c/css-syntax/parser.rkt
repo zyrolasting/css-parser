@@ -1,7 +1,6 @@
 #lang racket/base
 
 (require racket/contract
-         racket/generator
          "tokenizer/tokens.rkt"
          "tokenizer.rkt"
          "errors.rkt")
@@ -34,7 +33,10 @@
 (parse-node simple-block (token value))
 (parse-node function (name value))
 
-(define parser-entry-input/c (sequence/c (or/c char? token?)))
+(define parser-entry-input/c
+  (or/c string?
+        input-port?
+        (-> (or/c char? token?))))
 
 (define top-level? (make-parameter #f))
 
@@ -109,7 +111,7 @@
            (tokenize (open-input-string in))]
           [(input-port? in)
            (tokenize in)]
-          [(generator? in)
+          [(procedure? in)
            in]
           [else (raise-argument-error id
                                       "A string, an input port with UTF-8 characters, or a generator."
