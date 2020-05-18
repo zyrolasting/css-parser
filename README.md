@@ -14,10 +14,11 @@ This project is not endorsed by the W3C.
 
 
 ## Navigating the Code
-The code ships as a multi-collection package. Each collection
-corresponds to a W3C specification module (not to be confused with
-Racket modules). The Racket modules inside that collection _may_ cover
-more than one level (read: edition) of their governing specification.
+The code ships as a multi-collection package. Each `w3c/css-*`
+collection corresponds to a W3C specification module for CSS (not to
+be confused with Racket modules). The Racket modules inside that
+collection _may_ cover more than one level (read: edition) of their
+governing specification.
 
 Section references appear near relevant code, so `grep -r '4.3.13' css-syntax`
 will bring up the "Convert a string to a number" algorithm.
@@ -29,7 +30,7 @@ specification and edition date that collection currently tracks.
 While it is possible for a collection to track more than one level,
 the latest level has priority for support and development purposes.
 
-* `css-syntax`: _[CSS Syntax Module Level 3][css-syntax]_ (16 July 2019)
+* `w3c/css-syntax`: _[CSS Syntax Module Level 3][css-syntax]_ (16 July 2019)
 
 
 ## Contributing
